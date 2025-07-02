@@ -17,9 +17,9 @@ useEffect(() => {
     const hasFaceRegistered = localStorage.getItem("faceRegistered") === "true";
     
     if (hasFaceRegistered) {
-      navigate("/BiometricAuthPage");
+      navigate("/biometric-auth");
     } else {
-      navigate("/BiometricRegisterPage");
+      navigate("/biometric-register");
     }
   }
 }, [user, loading, navigate]);

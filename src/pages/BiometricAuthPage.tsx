@@ -8,15 +8,24 @@ const BiometricAuthPage = () => {
   const handleFaceAuth = () => {
     const faceio = new faceIO("fioad3e0");
 
-    faceio.authenticate({
-      locale: "auto"
-    }).then(userInfo => {
-      alert("Authenticated: " + userInfo.details.email);
-      navigate("/ElectionsPage"); // Redirect to vote page
-    }).catch(err => {
-      alert("Authentication failed: " + err.code);
-      console.error(err);
-    });
+   faceio.authenticate({
+  locale: "auto"
+}).then(userInfo => {
+  console.log("✅ FaceIO Auth Success:", userInfo);
+  
+  const email = userInfo?.details?.email || userInfo?.payload?.email;
+  if (!email) {
+    alert("Authenticated: but email not found");
+  } else {
+    alert("Authenticated: " + email);
+  }
+
+  navigate("/elections");
+}).catch(err => {
+  alert("Authentication failed: " + (err?.code ?? "unknown"));
+  console.error("❌ FaceIO Auth Error:", err);
+});
+
   };
 
   return (

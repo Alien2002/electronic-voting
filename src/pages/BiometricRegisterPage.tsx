@@ -18,10 +18,14 @@ const BiometricRegisterPage = () => {
   }
 }).then(userInfo => {
   console.log("✅ Full registration info:", userInfo);
-  alert("Face Registered for: " + userInfo.details.voterId);
+alert("Face Registered for: " + userInfo.details.voterId);
+
+
+
+
 
   localStorage.setItem("faceRegistered", "true");
-  navigate("/BiometricAuthPage"); // ✅ send them to verify
+  navigate("/biometric-auth"); // ✅ send them to verify
 }).catch(err => {
   let code = typeof err === "number" ? err : err?.code;
   alert("Registration failed. Error code: " + code);

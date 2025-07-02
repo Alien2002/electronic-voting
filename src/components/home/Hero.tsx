@@ -65,7 +65,7 @@ export const Hero = () => {
                     <FingerprintDisplay />
                   </div>
                   <p className="text-center text-sm text-gray-500">
-                    Verify your identity with your fingerprint
+                    Verify your identity through facial scan
                   </p>
                 </div>
                 <div className="mt-4 border-t border-gray-100 pt-4">
