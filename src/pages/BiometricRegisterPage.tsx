@@ -1,38 +1,63 @@
-
-
 // src/pages/BiometricRegisterPage.tsx
-import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const BiometricRegisterPage = () => {
   const navigate = useNavigate();
+  const [error, setError] = useState(false);
 
   const handleFaceRegistration = () => {
-    const faceio = new faceIO("fioad3e0"); // Replace with your real FACEIO public ID
+    setError(false); // Reset error state on new attempt
+    const faceio = new faceIO("fioad3e0"); 
 
     faceio.enroll({
-  locale: "auto",
-  payload: {
-    email: "voter@example.com",
-    voterId: "VOTER001"
-  }
-}).then(userInfo => {
-  console.log("✅ Full registration info:", userInfo);
-alert("Face Registered for: " + userInfo.details.voterId);
-
-
-
-
-
-  localStorage.setItem("faceRegistered", "true");
-  navigate("/biometric-auth"); // ✅ send them to verify
-}).catch(err => {
-  let code = typeof err === "number" ? err : err?.code;
-  alert("Registration failed. Error code: " + code);
-  console.error("❌ Error details:", err);
-});
-
-
+      locale: "auto",
+      payload: {
+        email: "voter@example.com",
+        voterId: "VOTER001"
+      }
+    }).then(userInfo => {
+      console.log("✅ Full registration info:", userInfo);
+      alert("Face Registered for: " + userInfo.details.voterId);
+      localStorage.setItem("faceRegistered", "true");
+      navigate("/elections"); // Redirect to elections page after registration
+    }).catch(err => {
+      setError(true);
+      localStorage.removeItem("faceRegistered");
+      let code = typeof err === "number" ? err : err?.code;
+      switch (code) {
+        case 1:
+          alert("Make sure you have a working camera and allow access.");
+          break;
+        case 2:
+          alert("No face model found for this application. Please contact support.");
+          break;
+        case 3:
+          alert("You cancelled the operation.");
+          break;
+        case 4:
+          alert("Session expired. Please try again.");
+          break;
+        case 5:
+          alert("Operation timed out. Please try again.");
+          break;
+        case 6:
+          alert("No face detected. Please ensure your face is clearly visible and well-lit.");
+          break;
+        case 7:
+          alert("Face not recognized. Please try again.");
+          break;
+        case 8:
+          alert("Multiple faces detected. Please ensure only your face is visible.");
+          break;
+        case 9:
+          alert("Network error. Please check your connection and try again.");
+          break;
+        default:
+          alert("Registration failed. Error code: " + code);
+      }
+      console.error("❌ Error details:", err);
+    });
   };
 
   return (
@@ -45,6 +70,17 @@ alert("Face Registered for: " + userInfo.details.voterId);
       >
         Register Face
       </button>
+      {error && (
+        <button
+          onClick={() => {
+            localStorage.removeItem("faceRegistered");
+            navigate("/");
+          }}
+          className="mt-4 px-6 py-3 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Back to Home
+        </button>
+      )}
     </div>
   );
 };
