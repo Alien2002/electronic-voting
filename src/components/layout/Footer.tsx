@@ -18,7 +18,7 @@ export const Footer = () => {
             <p className="text-gray-300 text-sm">
               Secure, transparent electronic voting powered by blockchain and biometrics.
             </p>
-            <div className="flex space-x-4 mt-4">
+            {/* <div className="flex space-x-4 mt-4">
               <a href="#" aria-label="Twitter" className="text-white hover:text-vote-accent">
                 <TwitterIcon className="h-5 w-5" />
               </a>
@@ -28,7 +28,7 @@ export const Footer = () => {
               <a href="#" aria-label="GitHub" className="text-white hover:text-vote-accent">
                 <GithubIcon className="h-5 w-5" />
               </a>
-            </div>
+            </div> */}
           </div>
 
           {/* Quick links */}
