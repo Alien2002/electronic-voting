@@ -77,6 +77,14 @@ const App = () => {
             }
           />
           <Route
+            path="/vote-confirmation"
+            element={
+              <ProtectedRoute>
+                <VoteConfirmationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/verify"
             element={
               <ProtectedRoute>
