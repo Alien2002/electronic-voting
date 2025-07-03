@@ -1,4 +1,3 @@
-
 // src/App.tsx
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -21,8 +20,17 @@ import SettingsPage from "@/pages/SettingsPage";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import SessionTimeout from "@/pages/SessionTimeout";
 
 const App = () => {
+  const handleLogout = () => {
+    // Clear auth state, redirect to login, etc.
+  };
+
+  const handleExtend = () => {
+    // Reset session timer (re-render SessionTimeout)
+  };
+
   return (
     <AuthProvider>
       <Router>
@@ -101,6 +109,7 @@ const App = () => {
           />
 
         </Routes>
+        <SessionTimeout onLogout={handleLogout} onExtend={handleExtend} />
         <Toaster />
       </Router>
     </AuthProvider>
