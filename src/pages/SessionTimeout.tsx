@@ -48,7 +48,7 @@ const SessionTimeout = ({ onLogout, onExtend }: { onLogout: () => void, onExtend
       <div className="bg-white text-black p-6 rounded shadow">
         <p>Your session is about to expire. Extend session?</p>
         <div className="mt-4 flex gap-4">
-          <button onClick={handleExtend} className="bg-blue-600 text-white px-4 py-2 rounded">Extend</button>
+          <button onClick={handleExtend} className="bg-vote-blue text-white px-4 py-2 rounded">Extend</button>
           <button onClick={handleLogout} className="bg-red-600 text-white px-4 py-2 rounded">Logout</button>
         </div>
       </div>
