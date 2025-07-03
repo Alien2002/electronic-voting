@@ -38,6 +38,7 @@ const App = () => {
           {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/verify" element={<VerifyPage />} />
           <Route path="/how-it-works" element={<HowItWorksPage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/security" element={<SecurityInfoPage />} />
@@ -78,14 +79,6 @@ const App = () => {
           />
           <Route
             path="/vote-confirmation"
-            element={
-              <ProtectedRoute>
-                <VoteConfirmationPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/verify"
             element={
               <ProtectedRoute>
                 <VoteConfirmationPage />

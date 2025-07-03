@@ -50,11 +50,6 @@ export const Footer = () => {
                   Elections
                 </Link>
               </li>
-              <li>
-                <Link to="/verify" className="text-gray-300 hover:text-white transition-colors">
-                  Verify Votes
-                </Link>
-              </li>
             </ul>
           </div>
 
