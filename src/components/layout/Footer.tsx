@@ -55,11 +55,6 @@ export const Footer = () => {
                   Verify Votes
                 </Link>
               </li>
-              <li>
-                <Link to="/about-us" className="text-gray-300 hover:text-white transition-colors">
-                  About Us
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -70,16 +65,6 @@ export const Footer = () => {
               <li>
                 <Link to="/faq" className="text-gray-300 hover:text-white transition-colors">
                   FAQ
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms" className="text-gray-300 hover:text-white transition-colors">
-                  Terms of Service
                 </Link>
               </li>
               <li>

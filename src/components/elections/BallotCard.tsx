@@ -13,7 +13,6 @@ import { useAuth } from "@/contexts/AuthContext";
 interface Candidate {
   id: string;
   name: string;
-  party: string;
 }
 
 interface BallotCardProps {
@@ -131,7 +130,6 @@ export const BallotCard = ({ position, candidates, electionId }: BallotCardProps
                 <Label htmlFor={candidate.id} className="font-medium text-lg cursor-pointer">
                   {candidate.name}
                 </Label>
-                <p className="text-gray-500 text-sm">{candidate.party}</p>
               </div>
             </div>
           ))}

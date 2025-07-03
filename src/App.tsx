@@ -1,7 +1,7 @@
 
 // src/App.tsx
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 
 import Index from "@/pages/Index";
@@ -14,19 +14,13 @@ import VoteConfirmationPage from "@/pages/VoteConfirmationPage";
 import VerifyPage from "@/pages/VerifyPage";
 import HowItWorksPage from "@/pages/HowItWorksPage";
 import FAQPage from "@/pages/FAQPage";
-import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
-import TermsOfServicePage from "@/pages/TermsOfServicePage";
 import SecurityInfoPage from "@/pages/SecurityInfoPage";
 import ContactPage from "@/pages/ContactPage";
 import ProfilePage from "@/pages/ProfilePage";
 import SettingsPage from "@/pages/SettingsPage";
-import AboutUsPage from "@/pages/AboutUsPage";
-import AdminDashboardPage from "@/pages/AdminDashboardPage";
-import NotFound from "@/pages/NotFound";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { AdminRoute } from "@/components/auth/AdminRoute";
 
 const App = () => {
   return (
@@ -39,11 +33,8 @@ const App = () => {
           <Route path="/verify" element={<VerifyPage />} />
           <Route path="/how-it-works" element={<HowItWorksPage />} />
           <Route path="/faq" element={<FAQPage />} />
-          <Route path="/privacy" element={<PrivacyPolicyPage />} />
-          <Route path="/terms" element={<TermsOfServicePage />} />
           <Route path="/security" element={<SecurityInfoPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/about-us" element={<AboutUsPage />} />
 
           {/* Protected Routes */}
           <Route
@@ -103,18 +94,12 @@ const App = () => {
             }
           />
 
-          {/* Admin Route */}
+          {/* Redirecting all other routes to home page */}
           <Route
-            path="/admin"
-            element={
-              <AdminRoute>
-                <AdminDashboardPage />
-              </AdminRoute>
-            }
+            path="*"
+            element={<Navigate to="/" replace />}
           />
 
-          {/* Catch-all route for undefined paths */}
-          <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
       </Router>

@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2Icon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
-export const LoginForm = () => {
+export const LoginForm = ({onclick}: {onclick: () => void}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -29,14 +29,6 @@ export const LoginForm = () => {
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleRegisterClick = () => {
-    // Find the register tab and switch to it
-    const registerTab = document.querySelector('[data-value="register"]') as HTMLElement;
-    if (registerTab) {
-      registerTab.click();
     }
   };
 
@@ -95,7 +87,7 @@ export const LoginForm = () => {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500">
-          Don't have an account? <a href="#" className="text-vote-teal hover:underline" onClick={handleRegisterClick}>Register now</a>
+          Don't have an account? <a href="#" className="text-vote-teal hover:underline" onClick={onclick}>Register now</a>
         </p>
       </div>
     </div>

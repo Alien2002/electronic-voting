@@ -5,23 +5,15 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 const faqs = [
   {
     question: "How does biometric authentication enhance security?",
-    answer: "Biometric authentication uses unique physiological characteristics (like fingerprints) to verify your identity, making it significantly harder for unauthorized individuals to access your account or cast a vote on your behalf."
+    answer: "Biometric authentication uses unique physiological characteristics to verify your identity, making it significantly harder for unauthorized individuals to access your account or cast a vote on your behalf."
   },
   {
     question: "Is my voting data anonymous?",
     answer: "Yes, while your identity is verified for eligibility, your actual vote is decoupled from your personal information to ensure anonymity and privacy. The system is designed to protect voter confidentiality."
   },
   {
-    question: "What happens if the biometric scan fails?",
-    answer: "If a biometric scan fails multiple times, there may be alternative verification methods available, or you might need to contact support for assistance. Ensure your finger is clean and properly placed on the scanner."
-  },
-  {
     question: "Can I change my vote after submitting it?",
     answer: "Typically, once a vote is cast and confirmed, it cannot be changed to maintain the integrity of the election process. Please review your selections carefully before submitting."
-  },
-  {
-    question: "How is the election data stored and protected?",
-    answer: "Election data is stored using secure, often decentralized (like blockchain), technologies with strong encryption. This protects against tampering and ensures transparency, as verifiable records are maintained."
   }
 ];
 

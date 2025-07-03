@@ -1,44 +1,105 @@
+'use client'
 
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ElectionCard } from "@/components/elections/ElectionCard";
 import { SectionHeading } from "@/components/common/SectionHeading";
-// Tabs components are no longer needed
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-// Label is not used
-// import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SearchIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+type Election = {
+  id: string;
+  title: string;
+  date: string;
+  description: string;
+  status: "Active" | "Upcoming" | "Completed";
+};
 
 const ElectionsPage = () => {
-  // Mock election data - now only activeElections
-  const activeElections = [
-    {
-      id: 1,
-      title: "COICT Ex-COM Election", // Updated title
-      date: "May 15, 2025",
-      description: "Vote for COICT Ex-COM representatives for the upcoming term.", // Updated description slightly
-      status: "Active" as const,
-      timeRemaining: "1 day 4 hours",
-    },
-    {
-      id: 2,
-      title: "UDSM-COICT Foreign Ambassadors Election", // Updated title
-      date: "May 18, 2025",
-      description: "Special election for UDSM-COICT Foreign Ambassador positions.", // Updated description slightly
-      status: "Active" as const,
-      timeRemaining: "4 days 12 hours",
-    },
-  ];
+  const [elections, setElections] = useState<Election[]>([]);
+  const [countdowns, setCountdowns] = useState<{ [id: string]: string }>({});
 
-  // upcomingElections and completedElections are removed
+  useEffect(() => {
+    const fetchElections = async () => {
+      const { data, error } = await supabase.from("elections").select("*");
+      if (!error && data) {
+        setElections(
+          data
+            .map((item: any) => {
+              const id = item.id;
+              if (!id || typeof id !== "string") {
+                console.warn("Invalid election id:", item.id, item);
+                return null;
+              }
+              return {
+                id,
+                title: item.title,
+                date: item.end_date || "",
+                description: item.description,
+                status: item.is_active ? "Active" : "Completed",
+              };
+            })
+            .filter(Boolean) as Election[]
+        );
+      }
+    };
+    fetchElections();
+  }, []);
+
+  const getTimeRemaining = (date: string) => {
+    const now = new Date();
+    const target = new Date(date);
+    const diff = target.getTime() - now.getTime();
+    if (diff <= 0) return { str: "Ended", ms: 0 };
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+    return { str: `${days}d ${hours}h ${minutes}m ${seconds}s`, ms: diff };
+  };
+
+  // Set up countdowns and update election status
+  useEffect(() => {
+    if (elections.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCountdowns((prevCountdowns) => {
+        const updatedCountdowns: { [id: string]: string } = {};
+        elections.forEach((election) => {
+          const { str } = getTimeRemaining(election.date);
+          updatedCountdowns[election.id] = str;
+        });
+        return updatedCountdowns;
+      });
+
+      setElections((prevElections) =>
+        prevElections.map((election) => {
+          const { ms } = getTimeRemaining(election.date);
+          if (election.status === "Active" && ms <= 0) {
+            return { ...election, status: "Completed" };
+          }
+          return election;
+        })
+      );
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [elections]);
+
+  // Only show active elections with countdown not ended
+  const activeElections = elections.filter((election) => {
+    const countdown = countdowns[election.id];
+    return election.status === "Active" && countdown !== "Ended";
+  });
 
   return (
     <MainLayout>
       <div className="max-w-6xl mx-auto">
         <SectionHeading
-          title="Active Elections" // Updated title
-          subtitle="View and participate in currently active elections." // Updated subtitle
+          title="Active Elections"
+          subtitle="View and participate in currently active elections."
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -46,7 +107,7 @@ const ElectionsPage = () => {
             <div className="relative">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Search active elections..." // Updated placeholder
+                placeholder="Search for an election..."
                 className="pl-10"
               />
             </div>
@@ -54,23 +115,18 @@ const ElectionsPage = () => {
           <div>
             <Select defaultValue="all">
               <SelectTrigger>
-                <SelectValue placeholder="Filter by jurisdiction" />
+                <SelectValue placeholder="Filter elections" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Jurisdictions</SelectItem>
-                <SelectItem value="federal">Federal</SelectItem>
-                <SelectItem value="state">State</SelectItem>
-                <SelectItem value="county">County</SelectItem>
-                <SelectItem value="city">City/Local</SelectItem>
+                <SelectItem value="all">All</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        {/* Tabs are removed, directly display active elections */}
-        {activeElections.length > 0 ? (
+        {elections.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {activeElections.map((election) => (
+            {elections.map((election) => (
               <ElectionCard
                 key={election.id}
                 id={election.id}
@@ -78,7 +134,7 @@ const ElectionsPage = () => {
                 date={election.date}
                 description={election.description}
                 status={election.status}
-                timeRemaining={election.timeRemaining}
+                timeRemaining={countdowns[election.id] || ""}
               />
             ))}
           </div>

@@ -6,7 +6,7 @@ import { Loader2Icon, UserPlus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 
-export const RegisterForm = () => {
+export const RegisterForm = ({onclick}: {onclick: ()=>void}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -28,14 +28,6 @@ export const RegisterForm = () => {
       console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleLoginClick = () => {
-    // Find the login tab and switch to it
-    const loginTab = document.querySelector('[data-value="login"]') as HTMLElement;
-    if (loginTab) {
-      loginTab.click();
     }
   };
 
@@ -108,7 +100,7 @@ export const RegisterForm = () => {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500">
-          Already have an account? <a href="#" className="text-vote-teal hover:underline" onClick={handleLoginClick}>Sign in</a>
+          Already have an account? <a href="#" className="text-vote-teal hover:underline" onClick={onclick}>Sign in</a>
         </p>
       </div>
     </div>

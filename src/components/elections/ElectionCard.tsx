@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { CalendarIcon, ClockIcon, ArrowRightIcon } from "lucide-react";
 
 interface ElectionCardProps {
-  id: number;
+  id: string;
   title: string;
   date: string;
   description: string;
@@ -42,7 +42,7 @@ export const ElectionCard = ({
           <div>
             <div className="flex items-center gap-2 mb-2 text-sm text-gray-600">
               <CalendarIcon className="h-4 w-4" />
-              <span>{date}</span>
+              <span>{new Date(date).toLocaleString()}</span>
             </div>
             <CardTitle className="text-vote-blue">{title}</CardTitle>
           </div>

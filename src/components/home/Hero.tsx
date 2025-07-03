@@ -25,7 +25,7 @@ export const Hero = () => {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-white text-white hover:bg-white hover:text-vote-blue transition-colors"
+                  className="border-white text-vote-blue hover:bg-white hover:text-vote-blue transition-colors"
                 >
                   Learn How It Works
                 </Button>

@@ -4,26 +4,41 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FingerprintIcon, UserIcon, ShieldCheckIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+
+const tabValues = ['login', 'register']
 
 const AuthPage = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [tab, setTab] = useState('login');
 
-useEffect(() => {
-  if (user && !loading) {
-    const hasFaceRegistered = localStorage.getItem("faceRegistered") === "true";
-    
-    if (hasFaceRegistered) {
-      navigate("/biometric-auth");
-    } else {
-      navigate("/biometric-register");
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (tabValues.includes(hash)) {
+      setTab(hash);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.history.replaceState(null, '', `#${tab}`);
+  }, [tab]);
+
+  useEffect(() => {
+    if (user && !loading) {
+      navigate("/elections");
+    }
+  }, [user, loading, navigate]);
+
+  const handleTabs = () => {
+    if(tab=='login') {
+      setTab('register')
+    }else {
+      setTab('login')
     }
   }
-}, [user, loading, navigate]);
-
 
   if (loading) {
     return (
@@ -94,16 +109,16 @@ useEffect(() => {
           </div>
           
           <div className="md:col-span-3 order-1 md:order-2">
-            <Tabs defaultValue="login" className="w-full">
+            <Tabs value={tab} onValueChange={setTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-8">
                 <TabsTrigger value="login">Login</TabsTrigger>
                 <TabsTrigger value="register">Register</TabsTrigger>
               </TabsList>
               <TabsContent value="login">
-                <LoginForm />
+                <LoginForm onclick={handleTabs} />
               </TabsContent>
               <TabsContent value="register">
-                <RegisterForm />
+                <RegisterForm onclick={handleTabs}/>
               </TabsContent>
             </Tabs>
           </div>

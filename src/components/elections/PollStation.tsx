@@ -28,7 +28,6 @@ export const PollStation = ({ electionId }: PollStationProps) => {
       setError(null);
       
       try {
-        console.log('Fetching poll results for election:', electionId);
         
         // Fetch votes for the specific election with candidate information
         const { data: votesData, error: voteError } = await supabase
@@ -43,11 +42,9 @@ export const PollStation = ({ electionId }: PollStationProps) => {
           .eq('election_id', electionId);
 
         if (voteError) {
-          console.error('Error fetching votes:', voteError);
           throw voteError;
         }
 
-        console.log('Fetched votes data:', votesData);
 
         if (!votesData || votesData.length === 0) {
           console.log('No votes found for this election');
@@ -88,9 +85,6 @@ export const PollStation = ({ electionId }: PollStationProps) => {
 
         // Sort by vote count (highest first)
         pollResults.sort((a, b) => b.voteCount - a.voteCount);
-
-        console.log('Processed poll results:', pollResults);
-        console.log('Total votes:', totalVotesCount);
         
         setResults(pollResults);
         

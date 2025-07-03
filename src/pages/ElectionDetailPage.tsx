@@ -4,96 +4,132 @@ import { Link, useParams } from "react-router-dom";
 import { CalendarIcon, ClockIcon, ChevronLeftIcon, AlertTriangleIcon, InfoIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { PollStation } from "@/components/elections/PollStation";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-interface CandidateMock {
-  id: string; // Will now be a UUID
+type Candidate = {
+  id: string;
   name: string;
-  party: string;
-}
-interface PositionMock {
+};
+type Position = {
   title: string;
-  candidates: CandidateMock[];
-}
-interface ElectionMock {
-  id: number;
+  candidates: Candidate[];
+};
+type Election = {
+  id: string;
   title: string;
   date: string;
   description: string;
   status: "Active" | "Upcoming" | "Completed";
-  timeRemaining?: string;
-  location: string;
-  positions: PositionMock[];
-  dbElectionId: string; 
-}
-
-const MOCK_ELECTIONS: ElectionMock[] = [
-  {
-    id: 1,
-    dbElectionId: "10000000-0000-0000-0000-000000000001",
-    title: "COICT Ex-COM Election",
-    date: "May 15, 2025",
-    description: "Vote for COICT Ex-COM representatives for the upcoming term.",
-    status: "Active",
-    timeRemaining: "1 day 4 hours",
-    location: "All City Districts",
-    positions: [
-      {
-        title: "COICT Ex-COM Representative",
-        candidates: [
-          { id: "c01c7000-0001-0000-0000-000000000001", name: "Reagan Jonathan Peter", party: "Progress Party" },
-          { id: "c01c7000-0001-0000-0000-000000000002", name: "Joseph Daniel Mwakyoma", party: "Citizens Alliance" },
-          { id: "c01c7000-0001-0000-0000-000000000003", name: "Isack Godfrey Lyanga", party: "Independent Voice" },
-        ],
-      },
-    ],
-  },
-  {
-    id: 2,
-    dbElectionId: "10000000-0000-0000-0000-000000000002",
-    title: "UDSM-COICT Foreign Ambassadors Election",
-    date: "May 18, 2025",
-    description: "Special election for UDSM-COICT Foreign Ambassador positions.",
-    status: "Active",
-    timeRemaining: "4 days 12 hours",
-    location: "District 5",
-    positions: [
-      {
-        title: "UDSM-COICT Foreign Ambassador",
-        candidates: [
-          { id: "c01c7000-0002-0000-0000-000000000001", name: "Juan Isack Jumbe", party: "Education First" },
-          { id: "c01c7000-0002-0000-0000-000000000002", name: "Dismas Ferdinand Shange", party: "Community Voice" },
-          { id: "c01c7000-0002-0000-0000-000000000003", name: "Irene Sylvester Wambura", party: "Future Leaders Now" },
-        ],
-      },
-    ],
-  },
-  {
-    id: 3, 
-    dbElectionId: "10000000-0000-0000-0000-000000000003",
-    title: "State Senate Primary",
-    date: "June 5, 2025",
-    description: "Primary election for state senate candidates.",
-    status: "Upcoming",
-    timeRemaining: "23 days 8 hours",
-    location: "State District 12",
-    positions: [
-      {
-        title: "State Senator - Primary",
-        candidates: [
-          { id: "c01c7000-0003-0000-0000-000000000001", name: "Michael P. Candidate", party: "Blue Party" },
-          { id: "c01c7000-0003-0000-0000-000000000002", name: "Laura K. Aspirant", party: "Red Party" },
-          { id: "c01c7000-0003-0000-0000-000000000003", name: "David R. Hopeful", party: "Green Initiative" },
-        ],
-      },
-    ],
-  },
-];
+  positions: Position[];
+};
 
 const ElectionDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const electionIdParams = Number(id);
+  const [election, setElection] = useState<Election | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [timeRemaining, setTimeRemaining] = useState<string>("");
 
-  const election = MOCK_ELECTIONS.find(e => e.id === electionIdParams);
+  // Helper for countdown
+  const getTimeRemaining = (date: string) => {
+    const now = new Date();
+    const target = new Date(date);
+    const diff = target.getTime() - now.getTime();
+    if (diff <= 0) return { str: "Ended", ms: 0 };
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+    return { str: `${days}d ${hours}h ${minutes}m ${seconds}s`, ms: diff };
+  };
+
+  useEffect(() => {
+    const fetchElection = async () => {
+      setLoading(true);
+      // Fetch election
+      const { data: electionData, error: electionError } = await supabase
+        .from("elections")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (electionError || !electionData) {
+        setElection(null);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch candidates and group by position
+      const { data: candidatesData, error: candidatesError } = await supabase
+        .from("candidates")
+        .select("id, name, position")
+        .eq("election_id", id);
+
+      if (candidatesError) {
+        setElection(null);
+        setLoading(false);
+        return;
+      }
+
+      // Group candidates by position
+      const positionsMap: { [title: string]: Candidate[] } = {};
+      (candidatesData || []).forEach((candidate: any) => {
+        if (!positionsMap[candidate.position]) {
+          positionsMap[candidate.position] = [];
+        }
+        positionsMap[candidate.position].push({
+          id: candidate.id,
+          name: candidate.name,
+        });
+      });
+
+      const positions: Position[] = Object.entries(positionsMap).map(
+        ([title, candidates]) => ({
+          title,
+          candidates,
+        })
+      );
+
+      setElection({
+        id: electionData.id,
+        title: electionData.title,
+        date: electionData.end_date || "",
+        description: electionData.description,
+        status: electionData.is_active ? "Active" : "Completed",
+        positions,
+      });
+      setTimeRemaining(getTimeRemaining(electionData.end_date || "").str);
+      setLoading(false);
+    };
+    if (id) fetchElection();
+  }, [id]);
+
+  // Live countdown effect
+  useEffect(() => {
+    if (!election || !election.date) return;
+    const updateCountdown = () => {
+      const { str, ms } = getTimeRemaining(election.date);
+      setTimeRemaining(str);
+      if (election.status === "Active" && ms <= 0) {
+        setElection((prev) =>
+          prev ? { ...prev, status: "Completed" } : prev
+        );
+      }
+    };
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [election]);
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="max-w-4xl mx-auto py-12 text-center">
+          <p className="text-gray-600">Loading election details...</p>
+        </div>
+      </MainLayout>
+    );
+  }
 
   if (!election) {
     return (
@@ -130,15 +166,15 @@ const ElectionDetailPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 text-gray-600">
             <div className="flex items-center">
-              <CalendarIcon className="h-5 w-5 text-vote-teal mr-3" />
-              <span>Date: <strong>{election.date}</strong></span>
+              <CalendarIcon className="h-5 w-5 text-red-600 mr-3" />
+              <span>Date: <strong>{new Date(election.date).toLocaleString()}</strong></span>
             </div>
-            {election.timeRemaining && (
+            {timeRemaining && (
               <div className="flex items-center">
-                <ClockIcon className="h-5 w-5 text-vote-teal mr-3" />
+                <ClockIcon className="h-5 w-5 text-red-600 mr-3" />
                 <span>
                   {election.status === "Active" ? "Closes in: " : "Opens in: "}
-                  <strong>{election.timeRemaining}</strong>
+                  <strong>{timeRemaining}</strong>
                 </span>
               </div>
             )}
@@ -178,7 +214,7 @@ const ElectionDetailPage = () => {
             key={index}
             position={position.title}
             candidates={position.candidates}
-            electionId={election.dbElectionId}
+            electionId={election.id}
           />
         ))}
 
@@ -190,7 +226,7 @@ const ElectionDetailPage = () => {
                 <h3 className="text-xl font-medium text-vote-blue mb-2">{position.title}</h3>
                 <ul className="list-disc list-inside pl-4 text-gray-700">
                   {position.candidates.map(candidate => (
-                    <li key={candidate.id}>{candidate.name} ({candidate.party})</li>
+                    <li key={candidate.id}>{candidate.name}</li>
                   ))}
                 </ul>
               </div>
@@ -203,7 +239,7 @@ const ElectionDetailPage = () => {
             <h2 className="text-2xl font-semibold text-vote-blue mb-6">
               {election.status === "Active" ? "Live Election Results" : "Final Election Results"}
             </h2>
-            <PollStation electionId={election.dbElectionId} />
+            <PollStation electionId={election.id} />
           </div>
         )}
 
