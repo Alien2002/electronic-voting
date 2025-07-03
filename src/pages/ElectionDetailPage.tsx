@@ -167,13 +167,13 @@ const ElectionDetailPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 text-gray-600">
             <div className="flex items-center">
               <CalendarIcon className="h-5 w-5 text-red-600 mr-3" />
-              <span>Date: <strong>{new Date(election.date).toLocaleString()}</strong></span>
+              <span>Deadline Date: <strong>{new Date(election.date).toLocaleString()}</strong></span>
             </div>
             {timeRemaining && (
               <div className="flex items-center">
-                <ClockIcon className="h-5 w-5 text-red-600 mr-3" />
+                <ClockIcon className={`h-5 w-5 ${election.status === "Active"? 'text-vote-teal' : 'text-red-600'} mr-3`} />
                 <span>
-                  {election.status === "Active" ? "Closes in: " : "Opens in: "}
+                  {election.status === "Active" ? "Closes in: " : "Status: "}
                   <strong>{timeRemaining}</strong>
                 </span>
               </div>
